@@ -8,80 +8,80 @@ datasource db {
 }
 
 model User {
-  id          String    @id @default(uuid())
-  username    String?    @unique
-  email       String?    @unique
-  address     String    @unique // Ethereum address
-  isVerified  Boolean   @default(false) // Verified user or not
-  profilePic  String?   // Optional profile picture URL
-  bio         String?   // User bio
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  nfts        NFT[]     // NFTs created by the user
+  id          String          @id @default(uuid())
+  username    String?         
+  email       String?         @unique
+  address     String          @unique // Ethereum address
+  isVerified  Boolean         @default(false) // Verified user or not
+  profilePic  String? // Optional profile picture URL
+  bio         String? // User bio
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  nfts        NFT[] // NFTs created by the user
   collections NFTCollection[] // Collections created by the user
-  bids        Bid[]     // Bids placed by the user
+  bids        Bid[] // Bids placed by the user
   listings    Listing[] // Listings created by the user
   events      EventLog[] // User-related activities
   bundles     Bundle[]
 }
 
 model NFTCollection {
-  id              String   @id @default(uuid())
-  name            String
-  description     String?
-  featuredImage   String?  // Featured image for the collection
-  royalty         Float    @default(0) // Default royalty percentage
-  creatorId       String
-  isVerified      Boolean  @default(false) // Collection verification status
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  nfts            NFT[]    // NFTs belonging to the collection
-  creator         User     @relation(fields: [creatorId], references: [id])
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  featuredImage String? // Featured image for the collection
+  royalty       Float    @default(0) // Default royalty percentage
+  creatorId     String
+  isVerified    Boolean  @default(false) // Collection verification status
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  nfts          NFT[] // NFTs belonging to the collection
+  creator       User     @relation(fields: [creatorId], references: [id])
 }
 
 model NFT {
-  id               String         @id @default(uuid())
-  title            String
-  description      String?
-  imageUrl         String         // IPFS or CDN URL
-  metadataUrl      String         // Metadata URL (on IPFS or other storage)
-  ownerId          String
-  collectionId     String?
-  royalty          Float          @default(0) // Royalty percentage for this NFT
-  royaltyReceiver  String         // Ethereum address for royalty payments
-  blockchainId     String         // Reference to the Blockchain model
-  isLazyMinted     Boolean        @default(false) // If true, NFT is minted on purchase
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  collection       NFTCollection? @relation(fields: [collectionId], references: [id])
-  owner            User           @relation(fields: [ownerId], references: [id])
-  blockchain       Blockchain     @relation(fields: [blockchainId], references: [id])
-  listings         Listing[]      // Listings for this NFT
-  events           EventLog[]     // Events associated with this NFT
+  id              String         @id @default(uuid())
+  title           String
+  description     String?
+  imageUrl        String // IPFS or CDN URL
+  metadataUrl     String // Metadata URL (on IPFS or other storage)
+  ownerAddress    String         @unique // Ensure owner address is unique
+  collectionId    String?
+  royalty         Float          @default(0) // Royalty percentage for this NFT
+  royaltyReceiver String // Ethereum address for royalty payments
+  blockchainId    String // Reference to the Blockchain model
+  isLazyMinted    Boolean        @default(false) // If true, NFT is minted on purchase
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  collection      NFTCollection? @relation(fields: [collectionId], references: [id])
+  owner           User           @relation(fields: [ownerAddress], references: [address])
+  blockchain      Blockchain     @relation(fields: [blockchainId], references: [id])
+  listings        Listing[] // Listings for this NFT
+  events          EventLog[] // Events associated with this NFT
 }
 
 model Blockchain {
-  id          String   @id @default(uuid())
-  name        String   // Blockchain name (e.g., Ethereum, Polygon)
-  chainId     Int      // Unique Chain ID for the blockchain
-  currency    String   // Currency symbol (e.g., ETH, MATIC)
-  explorerUrl String   // Block explorer base URL
-  nfts        NFT[]    // NFTs on this blockchain
+  id          String @id @default(uuid())
+  name        String // Blockchain name (e.g., Ethereum, Polygon)
+  chainId     Int // Unique Chain ID for the blockchain
+  currency    String // Currency symbol (e.g., ETH, MATIC)
+  explorerUrl String // Block explorer base URL
+  nfts        NFT[] // NFTs on this blockchain
 }
 
 model Listing {
-  id          String      @id @default(uuid())
-  nftId       String
-  sellerId    String
-  price       Float       // Price in blockchain currency
-  startTime   DateTime
-  endTime     DateTime
-  type        ListingType @default(FIXED) // FIXED or AUCTION
-  status      ListingStatus @default(ACTIVE) // ACTIVE, EXPIRED, SOLD
-  bids        Bid[]       // Bids for this listing (if auction)
-  nft         NFT         @relation(fields: [nftId], references: [id])
-  seller      User        @relation(fields: [sellerId], references: [id])
-  eventLogs   EventLog[]  // Added inverse relation here
+  id        String        @id @default(uuid())
+  nftId     String
+  sellerId  String
+  price     Float // Price in blockchain currency
+  startTime DateTime
+  endTime   DateTime
+  type      ListingType   @default(FIXED) // FIXED or AUCTION
+  status    ListingStatus @default(ACTIVE) // ACTIVE, EXPIRED, SOLD
+  bids      Bid[] // Bids for this listing (if auction)
+  nft       NFT           @relation(fields: [nftId], references: [id])
+  seller    User          @relation(fields: [sellerId], references: [id])
+  eventLogs EventLog[] // Added inverse relation here
 }
 
 enum ListingType {
@@ -96,26 +96,26 @@ enum ListingStatus {
 }
 
 model Bid {
-  id          String   @id @default(uuid())
-  listingId   String
-  bidderId    String
-  amount      Float    // Bid amount
-  createdAt   DateTime @default(now())
-  listing     Listing  @relation(fields: [listingId], references: [id])
-  bidder      User     @relation(fields: [bidderId], references: [id])
+  id        String   @id @default(uuid())
+  listingId String
+  bidderId  String
+  amount    Float // Bid amount
+  createdAt DateTime @default(now())
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  bidder    User     @relation(fields: [bidderId], references: [id])
 }
 
 model EventLog {
-  id         String    @id @default(uuid())
-  eventType  EventType
-  eventData  Json
-  createdAt  DateTime  @default(now())
-  nftId      String?
-  userId     String?
-  listingId  String?
-  nft        NFT?      @relation(fields: [nftId], references: [id])
-  user       User?     @relation(fields: [userId], references: [id])
-  listing    Listing?  @relation(fields: [listingId], references: [id])
+  id        String    @id @default(uuid())
+  eventType EventType
+  eventData Json
+  createdAt DateTime  @default(now())
+  nftId     String?
+  userId    String?
+  listingId String?
+  nft       NFT?      @relation(fields: [nftId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
+  listing   Listing?  @relation(fields: [listingId], references: [id])
 }
 
 enum EventType {
@@ -137,4 +137,3 @@ model Bundle {
   sellerId    String
   seller      User     @relation(fields: [sellerId], references: [id])
 }
-
