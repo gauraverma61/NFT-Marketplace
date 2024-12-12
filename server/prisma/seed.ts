@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
 
+    await prisma.blockchain.deleteMany({});
     await prisma.bid.deleteMany({});
     await prisma.listing.deleteMany({});
     await prisma.eventLog.deleteMany({});
